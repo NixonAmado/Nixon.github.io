@@ -3,12 +3,17 @@ let nombreUsuario = document.getElementById('ipt-nombre');
 let emailUsuario = document.getElementById('ipt-email');
 let numeroUsuario = document.getElementById('ipt-numero');
 let paisUsuario = document.getElementById('ipt-nacionalidad');
+let trContenedor = document.getElementById('table-body');
+
 //evitar el envio del formulario
 let formRegistro = document.getElementById('form-registro'); 
 formRegistro.addEventListener('click', function (e) {
     e.preventDefault();
 })
-
+let formSearch = document.getElementById('form-search'); 
+formSearch.addEventListener('click', function (e) {
+    e.preventDefault();
+})
 let formRutas = document.getElementById('form-rutas'); 
 formRutas.addEventListener('click', function (e) {
     e.preventDefault();
@@ -35,7 +40,6 @@ function agregarUsuario() {
     // añade el objeto a un arreglo de objetos
     usuarios.push(usuario);
 
-    let trContenedor = document.getElementById('table-body');
     trContenedor.innerHTML+= 
     `
     <tr class="fila-contenedora text-center">
@@ -101,8 +105,6 @@ function guardarCambios(evento3){
     let btnGuardar = evento3;
     let filaAGuardar = btnGuardar.closest('.fila-contenedora');
 
-
-
     //obtenemos los hijos de la fila  
     [...filaAGuardar.children].forEach((input,indexInput)=>{ 
         let primerElemento = input.firstElementChild
@@ -124,8 +126,33 @@ function guardarCambios(evento3){
     )
 }
 
+function buscar() {
+    const buscado = document.getElementById('searchInput').value.toLowerCase();
+    const rows = trContenedor.getElementsByTagName('tr');
+    for (let i = 0; i < rows.length; i++) {
+        const columns = rows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 0; j < columns.length; j++) {
+            const columnValue = columns[j].textContent.toLowerCase();
+            if (columnValue.includes(buscado)) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
+    }
+}
+
 const formRegistroBtn = document.getElementById('form-registro-btn');
 formRegistroBtn.addEventListener('click', agregarUsuario);
+
+const formSearchBtn = document.getElementById('form-search-btn');
+formSearchBtn.addEventListener('click', buscar);
+
 
 // codigo seccion gestion de rutas--------------------------------------------------------
 
