@@ -56,6 +56,8 @@ function agregarUsuario() {
         </td>
     </tr>
     `
+
+    formRegistro.reset();
         }
 
 function eliminarFila(evento1){
@@ -66,33 +68,25 @@ function eliminarFila(evento1){
     let filaAEliminar = btnEliminar.closest('.fila-contenedora');
     let tdId = filaAEliminar.querySelector('.td-id');
     //eliminar los datos del array de objetos
-    usuarios.forEach((e,index)=> e.idU == tdId.textContent.trim() ? usuarios.splice(index,1) : "");
-    console.log(usuarios);
+    usuarios = usuarios.filter((usuario)=> usuario.idU != tdId.textContent.trim());
     //eliminar fila de la tabla
     filaAEliminar.remove();
     
 }
 
-
-function editarFila(evento2){
-    let btnEditar = evento2;
+let datosAntesEditar = []
+function editarFila(btnEditar){
+    //resetea el array a cada entrada
+    datosAntesEditar = [];
     let filaAEditar = btnEditar.closest('.fila-contenedora');
-    [...filaAEditar.children].forEach((e)=>{ 
-        console.log(e)
-        let tdInput = document.createElement('input');
-        tdInput.value = e.textContent;
-        tdInput.type ='text'
-        
-        console.log(e.id)
-        if(e.id != 'td-botones'){
-            console.log(tdInput);
-            //vaciar el contenido del td
-            e.innerHTML = "";
+    [...filaAEditar.children].forEach((columna)=>{ 
+        datosAntesEditar.push(columna.textContent);
+        if(columna.id != 'td-botones'){
             //agregar el nodo input dentro del td
-            e.appendChild(tdInput);
+            columna.innerHTML = `<input type="text" value="${columna.textContent}">`;
         }
         else{
-            let divBotones = e.firstElementChild;
+            let divBotones = columna.firstElementChild;
             divBotones.innerHTML =  ` 
             <button type="button" btn onclick=guardarCambios(this) class="btn-info">guardar</button>
             `
@@ -100,23 +94,22 @@ function editarFila(evento2){
         }
     )
 }
-
-function guardarCambios(evento3){
-    let btnGuardar = evento3;
+//declaracion del array para que tenga un enfoque global solo con los datos del momento
+let datosDespuesEditar = []
+function guardarCambios(btnGuardar){
+    //resetea el array a cada entrada
+    datosDespuesEditar = []
     let filaAGuardar = btnGuardar.closest('.fila-contenedora');
 
     //obtenemos los hijos de la fila  
-    [...filaAGuardar.children].forEach((input,indexInput)=>{ 
-        let primerElemento = input.firstElementChild
-        let valorElemento = input.firstElementChild.value
-       
-
-       // le pasamos el contenido del input con texcontent que elimina automaticamente el input
-        if(input.id != 'td-botones'){
-            input.textContent =  valorElemento;
+    [...filaAGuardar.children].forEach((columna)=>{ 
+        datosDespuesEditar.push(columna.firstElementChild.value)
+        // le pasamos el contenido del input con texcontent que elimina automaticamente el input
+        if(columna.id != 'td-botones'){
+            columna.textContent =  columna.firstElementChild.value;
         }
         else{
-            let divBotones = primerElemento;
+            let divBotones = columna.firstElementChild;
             divBotones.innerHTML = `
             <button type="button" onclick="eliminarFila(this)" class="btn btn-danger">Borrar</button>
             <button type="button" onclick="editarFila(this)" class="btn btn-success">Editar</button>
@@ -124,8 +117,18 @@ function guardarCambios(evento3){
             }
         }
     )
-}
 
+    let usuarioEditado ={
+      idU : datosDespuesEditar[0],
+      nombre : datosDespuesEditar[1],
+      email : datosDespuesEditar[2],
+      numeroUsuario : datosDespuesEditar[3],
+      paisUsuario : datosDespuesEditar[4]
+      }
+      
+      usuarios.forEach((usuario,index) => datosAntesEditar[0] ==  usuario.idU ? usuarios[index] = usuarioEditado :"");
+
+}
 function buscar() {
     const buscado = document.getElementById('searchInput').value.toLowerCase();
     const rows = trContenedor.getElementsByTagName('tr');
@@ -156,7 +159,18 @@ formSearchBtn.addEventListener('click', buscar);
 
 // codigo seccion gestion de rutas--------------------------------------------------------
 
-let rutas  = []
+let rutas  = [
+     {
+    imagenRuta : 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Panor%C3%A1mica_de_San_Andres.JPG/1200px-Panor%C3%A1mica_de_San_Andres.JPG',
+    idR : '1',
+    nombreRuta : 'San Andres Islas',
+    valor : "1'200.000",
+    origen : 'Bogotá D.C',
+    destino : 'San Andres',
+    fidelizacion : '100',
+}
+
+]
 const urlImagenRuta= document.getElementById('url-rutas')
 const idRutas = document.getElementById('ipt-id-ruta');
 const nombreRutas = document.getElementById('ipt-nombre-ruta');
@@ -177,70 +191,67 @@ function agregarRuta() {
     }
     // añade el objeto a un arreglo de objetos
     rutas.push(ruta);
+    console.log(ruta)
 
     let contenedorCards = document.getElementById('contenedor-cards');
     contenedorCards.innerHTML+=
-    
     `
     <div class="col  contenedor-card">
-        <div class="card h-100">
-          <img src="${ruta.imagenRuta}" class="card-img-top" alt="imagen del destino"/>
-          <div class="card-body">
-            <h5 class="card-title text-center">${ruta.nombreRuta}</h5>
+        <div class="card h-100 ">
+          <img src="${ruta.imagenRuta}" class="card-img-top " height="250px" alt="imagen del destino"/>
+          <div class="card-body bg-gray border-3 p-2">
+            <h5 class="card-title text-center ">${ruta.nombreRuta}</h5>
             
-            <div class="input-group flex-nowrap" id="contenedor-id">
-              <span class="input-group-text" id="addon-wrapping">ID</span>
-              <input  type="text" class="form-control text-center bg-transparent eliminar"  placeholder="${ruta.idR}" aria-label="Username" aria-describedby="addon-wrapping" disabled>
-            </div>
-
-            <div class="input-group flex-nowrap ">
-              <span class="input-group-text" id="addon-wrapping">ruta</span>
-              <input type="text" class="form-control text-center" placeholder="${ruta.valor}" aria-label="Username" aria-describedby="addon-wrapping" disabled>
-            </div>
-
-            <div class="input-group flex-nowrap ">
-              <span class="input-group-text" id="addon-wrapping">origen</span>
-              <input type="text" class="form-control text-center" placeholder="${ruta.origen}" aria-label="Username" aria-describedby="addon-wrapping" disabled>
-            </div>
-
-            <div class="input-group flex-nowrap ">
-              <span class="input-group-text" id="addon-wrapping">destino</span>
-              <input type="text" class="form-control text-center" placeholder="${ruta.destino} " aria-label="Username" aria-describedby="addon-wrapping" disabled>
-            </div>
-
-            <div class="input-group flex-nowrap ">
-              <span class="input-group-text" id="addon-wrapping">fidelizacion</span>
-              <input type="text" class="form-control text-center" placeholder="${ruta.fidelizacion}" aria-label="Username" aria-describedby="addon-wrapping" disabled>
-            </div>
-            <button class="btn btn-primary del-btn " onclick="eliminarCard(this)" type="button">delete</button>    
-
-            </div>
-       </div>
-       </div>
+            <table class="table">
+              <tbody class="text-center ">
+                <tr class=" gradiente-blanco">
+                  <th scope="row" class="rounded-start gradiente-rojo"><i class=" fa-sharp fa-solid fa-hashtag fa-beat"></i></th>
+                  <td colspan="1" class="table-active rounded-end text-white" id="contenedor-id">${ruta.idR}</td>
+                </tr>
+                <tr class=" gradiente-blanco">
+                  <th scope="row" class="rounded-start gradiente-rojo"><i class=" fa-duotone fa-dollar-sign fa-beat" style="--fa-primary-color: #000000; --fa-primary-opacity: 1; --fa-secondary-color: #000000; --fa-secondary-opacity: 0.4;"></i> 
+                  </th>
+                  <td colspan="1" class="table-active rounded-end text-white">${ruta.valor}</td>
+                </tr>
+                <tr class=" gradiente-blanco">
+                  <th scope="row" class="rounded-start gradiente-rojo"><i class=" fa-solid fa-map-location-dot fa-beat" style="color: #000;"></i></th>
+                  <td colspan="1" class="table-active rounded-end text-white">${ruta.origen}</td>
+                </tr>
+                <tr class=" gradiente-blanco">
+                  <th scope="row" class="rounded-start gradiente-rojo"><i class=" fa-solid fa-location-dot fa-beat" style="color: #000;"></i></th>
+                  <td colspan="1" class="table-active rounded-end text-white">${ruta.destino}</td>
+                 </tr>
+                <tr class=" gradiente-blanco">
+                  <th scope="row" class="rounded-start gradiente-rojo"><i class=" fa-solid fa-crown fa-beat" style="color: #000000;"></i></th>
+                  <td colspan="1" class="table-active rounded-end text-white">${ruta.fidelizacion}</td>
+                </tr>
+              </tbody>
+            </table>
+            <button class="btn btn-primary d-block" onclick="eliminarCard(this)" type="button">Eliminar</button>
+          </div>  
+        </div>
+    </div>
 
     `
     formRutas.reset();
 }
 
-function eliminarCard(boton){
-    btnCardEliminar = boton;
+function eliminarCard(btnCardEliminar){
     //se supone que id es unico para cada card, el nombre puede que no 
-    idCard = btnCardEliminar.closest('.card-body').querySelector('#contenedor-id').querySelector('.eliminar').placeholder;
+    idCard = btnCardEliminar.closest('.card-body').querySelector('#contenedor-id').textContent;
     // borrar del array de objetos
-    rutas.forEach((e,index) => idCard.trim() == e.idR ? rutas.splice(index,1) : "");
+    rutas = rutas.filter((ruta) => ruta.idR != idCard.trim());
     // borrar card
     btnCardEliminar.closest('.contenedor-card').remove();
-    
-
-
-
+    console.log(rutas)
 }
 
 const formRutasBtn = document.getElementById('form-rutas-btn').addEventListener('click', agregarRuta);
 
+
+
 //seccion compras
 const formBtnTicket = document.getElementById('form-ticket-btn').addEventListener('click', añadirTIcket); 
-
 const selectNomCompras = document.getElementById('select-nombre-compras');
 const selectRutaCompras = document.getElementById('select-ruta-compras');
 
@@ -367,7 +378,7 @@ function añadirTIcket(){
 
                         <div class="col-md-12">
                             <button type="button" class="btn btn-success w-100" onclick="mostrarTab('resumen')">Comprar</button>
-                            </div>
+                        </div>
     `
 }
 
@@ -386,8 +397,8 @@ function mostrarTab(tabId) {
       let tabs = new bootstrap.Tab(tabLink);
       tabs.show();
     }
- 
 
+    calcularValorRuta()
 }
   
 
