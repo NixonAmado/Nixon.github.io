@@ -23,6 +23,27 @@ formTicket.addEventListener('click', function (e) {
     e.preventDefault();
 })
 
+const formRegistroBtn = document.getElementById('form-registro-btn');
+formRegistroBtn.addEventListener('click', function () {
+    validarForm(agregarUsuario, formRegistro);
+})
+
+
+const formRutasBtn = document.getElementById('form-rutas-btn')
+formRutasBtn.addEventListener('click', function () {
+  validarForm(agregarRuta, formRutas);
+})
+
+function validarForm(funcion, formulario){
+  // devuelve false si por lo menos un campo esta vacio | devuelve true si todos los campos estan LLENOS 
+  const inputAñadir = formulario.querySelectorAll('input');
+  let CamposVacios = [...inputAñadir].some((elemento) => elemento.value.trim() === "");
+    CamposVacios ? alert("Debes llenar todo el formulario") : funcion();
+
+  }
+
+
+
 
 //declaracion del contador para el id de la tabla
 let contador = 1;
@@ -150,11 +171,6 @@ function buscar() {
     }
 }
 
-const formRegistroBtn = document.getElementById('form-registro-btn');
-formRegistroBtn.addEventListener('click', agregarUsuario);
-
-const formSearchBtn = document.getElementById('form-search-btn');
-formSearchBtn.addEventListener('click', buscar);
 
 
 // codigo seccion gestion de rutas--------------------------------------------------------
@@ -246,7 +262,6 @@ function eliminarCard(btnCardEliminar){
     console.log(rutas)
 }
 
-const formRutasBtn = document.getElementById('form-rutas-btn').addEventListener('click', agregarRuta);
 
 
 
